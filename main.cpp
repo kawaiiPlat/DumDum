@@ -3,7 +3,7 @@
 
 int main(){
     char command[100];
-    std::string test = "python test.py";
+    std::string test = "python python_scripts/test.py";
     system(test.c_str());
 
 }

@@ -8,7 +8,7 @@
 			"args": [
 				"${file}",
 				"-o",
-				"${fileDirname}/out/${fileBasenameNoExtension}.o",
+				"${fileDirname}/out/${fileBasenameNoExtension}.out",
 				"&&",
 				"clear",
 				"&&",
