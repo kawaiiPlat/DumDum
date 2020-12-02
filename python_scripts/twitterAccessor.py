@@ -34,6 +34,8 @@ def main():
             num_posts = 0
             for post in all_posts_by_user:
                 tweet = remove_url(post.text.replace('\n', ' '))
+                regex = re.compile('[^a-zA-Z ]')  # removes all non-alphabetical characters
+                tweet = regex.sub('', tweet)
                 user_info_to_append += tweet
                 user_info_to_append += "\n"
                 # print()
