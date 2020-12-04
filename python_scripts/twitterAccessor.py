@@ -2,6 +2,7 @@ import json
 import os
 import tweepy as tw
 import re
+import sys
 
 # Enter your keys/secrets as strings in the following fields
 credentials = {}
@@ -12,9 +13,16 @@ credentials['ACCESS_TOKEN'] = "948800958439489536-FOTiPmy8MJjlPnFcYGoTZGl9hFrtNH
 credentials['ACCESS_TOKEN_SECRET'] = "MdDcAsQjNgh0YqDGX7qL7U8eGYi5xvE3aOOR31zDNRuuE"
 
 def main():
-    screen_name = "LinusTech"
-    all_posts = []
     data_file_name = "../text_files/tweet_data.txt"
+    
+    if (len(sys.argv) < 3):
+        all_text_to_append = "ERROR: not enough arguments"
+        print("ERROR: Not enough arguments. Should be 'python file_name mode_option'")
+        output_string_to_file(all_text_to_append, data_file_name)
+        return
+    screen_name = sys.argv[1]
+    mode_option = sys.argv[2]  # "0" = get score for screen_name, "1" = get score for all of screen_name's followers
+    all_posts = []
     
     #auth = tw.OAuthHandler(credentials['CONSUMER_KEY'], credentials['CONSUMER_KEY_SECRET'])  # this is Auth version 1, not as good
     auth = tw.AppAuthHandler(credentials['CONSUMER_KEY'], credentials['CONSUMER_KEY_SECRET'])  # Auth version 2 better, idk why exactly, rate limits?
@@ -22,38 +30,44 @@ def main():
     api = tw.API(auth, wait_on_rate_limit=False)
 
     find_rate_limiter(api)
-    all_followers = tw.Cursor(api.followers, screen_name).items(100)  # get 100 most recent followers
-    num_followers = 0
+    
     all_text_to_append = ""
-    for follower in all_followers:
+    if (mode_option == "1"):
+        all_followers = tw.Cursor(api.followers, screen_name).items(100)  # get 100 most recent followers
+        num_followers = 0
         try:
-            user_info_to_append = ""
-            all_posts_by_user = tw.Cursor(api.user_timeline, id=follower.id, include_rts=False).items(100)
-            print()
-            print("************** " + follower.screen_name + " **************")
-            num_posts = 0
-            for post in all_posts_by_user:
-                tweet = remove_url(post.text.replace('\n', ' '))
-                regex = re.compile('[^a-zA-Z ]')  # removes all non-alphabetical characters
-                tweet = regex.sub('', tweet)
-                user_info_to_append += tweet
-                user_info_to_append += "\n"
-                # print()
-                # print(tweet)
-                num_posts += 1
-            all_text_to_append += follower.screen_name + "\n" + str(num_posts) + "\n" + user_info_to_append
-            num_followers += 1
+            for follower in all_followers:
+                try:
+                    user_info_to_append, num_posts = get_all_posts_by_user(api, follower)
+                    all_text_to_append += follower.screen_name + "\n" + str(num_posts) + "\n" + user_info_to_append
+                    num_followers += 1
+                except:
+                    print("This follower is probably private. Skipping...")
+            all_text_to_append = "1\n" + str(num_followers) + "\n" + all_text_to_append
         except:
-            print("This follower is probably private. Skipping...")
+            print("ERROR: This user is not accessible.")  # probably because the account is private or similar
+            all_text_to_append = "ERROR: This user is not accessible."  # example private account: DaleTheTank
+            output_string_to_file(all_text_to_append, data_file_name)
+            return
+    elif mode_option == "0":
+        try:
+            user = api.get_user(screen_name)
+            user_info_to_append, num_posts = get_all_posts_by_user(api, user)
+            all_text_to_append += "0\n1\n" + screen_name + "\n" + str(num_posts) + "\n" + user_info_to_append  # the leading 0\n1\n specifies mode is 0 and there's 1 user listed
+        except:
+            print("ERROR: This user is not accessible.")  # probably because the account is private or similar
+            all_text_to_append = "ERROR: This user is not accessible."  # example private account: DaleTheTank
+            output_string_to_file(all_text_to_append, data_file_name)
+            return
+    else:
+        all_text_to_append = "ERROR: invalid mode"
+        print("ERROR: invalid mode")
+        output_string_to_file(all_text_to_append, data_file_name)
+        return
         
-    all_text_to_append = str(num_followers) + "\n" + all_text_to_append
-        
-    cur_path = os.path.dirname(__file__)
-    new_path = os.path.join(cur_path, data_file_name)
-    data_file = open(new_path, "a")
-    data_file.truncate(0)  # deletes all content of file
-    data_file.write(all_text_to_append)
-    data_file.close()
+    output_string_to_file(all_text_to_append, data_file_name)
+    
+    
     # example of searching for "wildfires" hashtags and printing the tweets
     
     # search_words = "#wildfires"
@@ -81,6 +95,30 @@ def find_rate_limiter(api):
     else:
         print("No rate limiter found")
     
+def output_string_to_file(to_output, filename):
+    cur_path = os.path.dirname(__file__)
+    new_path = os.path.join(cur_path, filename)
+    data_file = open(new_path, "a")
+    data_file.truncate(0)  # deletes all content of file
+    data_file.write(to_output)
+    data_file.close()
+    
+def get_all_posts_by_user(api, user):
+    all_posts_by_user = tw.Cursor(api.user_timeline, id=user.id, include_rts=False).items(100)
+    print()
+    print("************** " + user.screen_name + " **************")
+    num_posts = 0
+    user_info_to_append = ""
+    for post in all_posts_by_user:
+        tweet = remove_url(post.text.replace('\n', ' '))
+        regex = re.compile('[^a-zA-Z ]')  # removes all non-alphabetical characters
+        tweet = regex.sub('', tweet)
+        user_info_to_append += tweet
+        user_info_to_append += "\n"
+        # print()
+        # print(tweet)
+        num_posts += 1
+    return user_info_to_append, num_posts
 
 if __name__ == '__main__':
     main()
