@@ -64,8 +64,10 @@ def main():
         print("ERROR: invalid mode")
         output_string_to_file(all_text_to_append, data_file_name)
         return
-        
+    
+    print("Writing to the output file...")
     output_string_to_file(all_text_to_append, data_file_name)
+    print("Done writing")
     
     
     # example of searching for "wildfires" hashtags and printing the tweets
@@ -106,7 +108,7 @@ def output_string_to_file(to_output, filename):
 def get_all_posts_by_user(api, user):
     all_posts_by_user = tw.Cursor(api.user_timeline, id=user.id, include_rts=False, exclude_replies=True).items(100)
     print()
-    print("************** " + user.screen_name + " **************")
+    print("Accessing " + user.screen_name + "'s tweets...")
     num_posts = 0
     user_info_to_append = ""
     for post in all_posts_by_user:
@@ -118,6 +120,7 @@ def get_all_posts_by_user(api, user):
         # print()
         # print(tweet)
         num_posts += 1
+    print("Done")
     return user_info_to_append, num_posts
 
 if __name__ == '__main__':
