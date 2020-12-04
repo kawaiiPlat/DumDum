@@ -42,8 +42,8 @@ public:
 using namespace std;
 
 int main(){
-    //std::string test = "python python_scripts/test.py";
-    //system(test.c_str());
+    std::string test = "python python_scripts/twitterAccessor.py LinusTech 0";
+    system(test.c_str());
     
     unordered_map<string,int>   um;
     map<string, int>            om;
