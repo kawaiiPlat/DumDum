@@ -41,12 +41,25 @@ public:
 
 using namespace std;
 
-int main(){
-    std::string test = "python python_scripts/twitterAccessor.py LinusTech 0";
+enum class opType{ single = 0, followers = 1};
+
+void updateTwitter(string name, int mode){
+    Timer t3;
+    cout << "reading from twitter, please be patient..." << endl;
+    std::string test = "python python_scripts/twitterAccessor.py";
+    test = test + " " + name + " " + to_string(mode);
+    //std::string test = "python python_scripts/twitterAccessor.py LinusTech 0 > /dev/null 2>&1";
     system(test.c_str());
-    
-    unordered_map<string,int>   um;
-    map<string, int>            om;
+    cout << "search time: " << t3.elapsed() << endl << endl;
+}
+
+float findAverageOf(string userName, int mode){
+    updateTwitter(userName,mode);
+    // todo calculate with the file
+    return 0.0f;
+}
+
+void loadData(unordered_map<string,int>& um, map<string,int>& om){
     ifstream data;
 
     int i = 0;
@@ -75,14 +88,28 @@ int main(){
         um.emplace(currWord,numOccurences);
         om.emplace(currWord,numOccurences);
     }
+    return;
+}
+
+long getWordScore(unordered_map<string,int>& um, map<string,int>& om, float& umTime, float& omTime){
+    return 0;
+}
+
+int main(){
+    updateTwitter("LinusTech", (int)opType::single);
+
+    unordered_map<string,int>   um;
+    map<string, int>            om;
+    long umTime = 0, omTime = 0;
+    loadData(um,om);
 
 
     cout << setprecision(3) << fixed;
     Timer t1;
-    cout << um.count("mapquwst") << endl;
+    cout << um.find("test")->second << endl;
     cout << "Search time in µs for umap: " << t1.elapsed()*1000000 << endl << endl;
 
     Timer t2;
-    cout << om.count("mapquwst") << endl;
+    cout << om.find("test")->second << endl;
     cout << "Search time in µs for omap: " << t2.elapsed()*1000000 << endl;
 }
