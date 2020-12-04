@@ -104,7 +104,7 @@ def output_string_to_file(to_output, filename):
     data_file.close()
     
 def get_all_posts_by_user(api, user):
-    all_posts_by_user = tw.Cursor(api.user_timeline, id=user.id, include_rts=False).items(100)
+    all_posts_by_user = tw.Cursor(api.user_timeline, id=user.id, include_rts=False, exclude_replies=True).items(100)
     print()
     print("************** " + user.screen_name + " **************")
     num_posts = 0
