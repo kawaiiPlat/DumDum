@@ -22,7 +22,8 @@ def main():
         return
     screen_name = sys.argv[1]
     mode_option = sys.argv[2]  # "0" = get score for screen_name, "1" = get score for all of screen_name's followers
-    all_posts = []
+    MAX_FOLLOWER_NUM = 100
+    MAX_TWEET_NUM = 100
     
     #auth = tw.OAuthHandler(credentials['CONSUMER_KEY'], credentials['CONSUMER_KEY_SECRET'])  # this is Auth version 1, not as good
     auth = tw.AppAuthHandler(credentials['CONSUMER_KEY'], credentials['CONSUMER_KEY_SECRET'])  # Auth version 2 better, idk why exactly, rate limits?
@@ -33,16 +34,18 @@ def main():
     
     all_text_to_append = ""
     if (mode_option == "1"):
-        all_followers = tw.Cursor(api.followers, screen_name).items(100)  # get 100 most recent followers
+        all_followers = tw.Cursor(api.followers, screen_name).items(MAX_FOLLOWER_NUM)  # get 100 most recent followers
         num_followers = 0
         try:
             for follower in all_followers:
                 try:
-                    user_info_to_append, num_posts = get_all_posts_by_user(api, follower)
+                    user_info_to_append, num_posts = get_all_posts_by_user(api, follower, MAX_TWEET_NUM)
                     all_text_to_append += follower.screen_name + "\n" + str(num_posts) + "\n" + user_info_to_append
                     num_followers += 1
                 except:
                     print("This follower is probably private. Skipping...")
+                min_count = str(min(MAX_TWEET_NUM, api.get_user(screen_name).followers_count))
+                print("(" + str(num_followers) + " / " + str(min_count) + ")")
             all_text_to_append = "1\n" + str(num_followers) + "\n" + all_text_to_append
         except:
             print("ERROR: This user is not accessible.")  # probably because the account is private or similar
@@ -52,7 +55,7 @@ def main():
     elif mode_option == "0":
         try:
             user = api.get_user(screen_name)
-            user_info_to_append, num_posts = get_all_posts_by_user(api, user)
+            user_info_to_append, num_posts = get_all_posts_by_user(api, user, MAX_TWEET_NUM)
             all_text_to_append += "0\n1\n" + screen_name + "\n" + str(num_posts) + "\n" + user_info_to_append  # the leading 0\n1\n specifies mode is 0 and there's 1 user listed
         except:
             print("ERROR: This user is not accessible.")  # probably because the account is private or similar
@@ -105,8 +108,8 @@ def output_string_to_file(to_output, filename):
     data_file.write(to_output)
     data_file.close()
     
-def get_all_posts_by_user(api, user):
-    all_posts_by_user = tw.Cursor(api.user_timeline, id=user.id, include_rts=False, exclude_replies=True).items(100)
+def get_all_posts_by_user(api, user, MAX_TWEET_NUM):
+    all_posts_by_user = tw.Cursor(api.user_timeline, id=user.id, include_rts=False, exclude_replies=True).items(MAX_TWEET_NUM)
     print()
     print("Accessing " + user.screen_name + "'s tweets...")
     num_posts = 0
