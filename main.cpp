@@ -59,7 +59,7 @@ float findAverageOf(string userName, int mode){
     return 0.0f;
 }
 
-void loadData(unordered_map<string,int>& um, map<string,int>& om){
+void loadWordlist(unordered_map<string,int>& um, map<string,int>& om){
     ifstream data;
 
     int i = 0;
@@ -96,15 +96,16 @@ long getWordScore(unordered_map<string,int>& um, map<string,int>& om, float& umT
 }
 
 int main(){
-    updateTwitter("LinusTech", (int)opType::single);
-
     unordered_map<string,int>   um;
     map<string, int>            om;
+    loadWordlist(um,om);
     long umTime = 0, omTime = 0;
-    loadData(um,om);
-
-
     cout << setprecision(3) << fixed;
+
+    updateTwitter("LinusTech", (int)opType::followers);
+
+
+
     Timer t1;
     cout << um.find("test")->second << endl;
     cout << "Search time in µs for umap: " << t1.elapsed()*1000000 << endl << endl;
