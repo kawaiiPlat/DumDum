@@ -272,6 +272,7 @@ int main(){
                     choice = stoi(input);
                 } catch (exception e){
                     cout << sBadInput << endl;
+                    choice = -1;
                 }
 
                 if(choice == 0){
