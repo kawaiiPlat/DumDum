@@ -22,6 +22,22 @@ def main():
     #with open("python_scripts/apiKeys.json","w") as write_file:
     #    json.dump(credentials,write_file)
 
+    try:
+        print("trying to load file")
+        with open("text_files/breadcrumb.txt","r") as breadcrumb:
+            line = breadcrumb.readline()
+            if (line == mode_option):
+                line = breadcrumb.readline()
+                if (line == screen_name):
+                    print("Data already cached")
+                    exit()
+    except IOError:
+        print(IOError)
+        with open("text_files/breadcrumb.txt", "w") as new_breadcrumb:
+            print("making new breadcrumb")
+            newbc = mode_option + "\n" + screen_name
+            new_breadcrumb.write(newbc) 
+
     credentials = {}
     with open("python_scripts/apiKeys.json","r") as cred_file:
         credentials = json.load(cred_file)
