@@ -5,13 +5,6 @@ import re
 import sys
 import json
 
-# Enter your keys/secrets as strings in the following fields
-credentials = {}
-credentials['BEARER_TOKEN'] = "AAAAAAAAAAAAAAAAAAAAAEEYKQEAAAAA7OkbXl6oEnLibQY4vBfOwXCcoig%3DkdDQL8dQa84eDrtFzUINRVps6aTOKGwx4MkuFsEg86g6ud2PdR"
-credentials['CONSUMER_KEY'] = "KLJGBmD1Lmd36M8fSP31j4srM"  # same as API key
-credentials['CONSUMER_KEY_SECRET'] = "ojqisfDzyTqrv0Q87nycxBmIibT2w6SbpCqmq6euZG2q7RSJJI"  # same as API key secret
-credentials['ACCESS_TOKEN'] = "948800958439489536-FOTiPmy8MJjlPnFcYGoTZGl9hFrtNHY"
-credentials['ACCESS_TOKEN_SECRET'] = "MdDcAsQjNgh0YqDGX7qL7U8eGYi5xvE3aOOR31zDNRuuE"
 
 def main():
     data_file_name = "../text_files/tweet_data.txt"
@@ -29,9 +22,9 @@ def main():
     #with open("python_scripts/apiKeys.json","w") as write_file:
     #    json.dump(credentials,write_file)
 
-    #credentials = {}
-    #with open("python_scripts/apiKeys.json","r") as cred_file:
-    #    credentials = json.load(cred_file)
+    credentials = {}
+    with open("python_scripts/apiKeys.json","r") as cred_file:
+        credentials = json.load(cred_file)
 
     #auth = tw.OAuthHandler(credentials['CONSUMER_KEY'], credentials['CONSUMER_KEY_SECRET'])  # this is Auth version 1, not as good
     auth = tw.AppAuthHandler(credentials['CONSUMER_KEY'], credentials['CONSUMER_KEY_SECRET'])  # Auth version 2 better, idk why exactly, rate limits?
