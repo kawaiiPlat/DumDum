@@ -3,6 +3,7 @@ import os
 import tweepy as tw
 import re
 import sys
+import json
 
 # Enter your keys/secrets as strings in the following fields
 credentials = {}
@@ -25,6 +26,13 @@ def main():
     MAX_FOLLOWER_NUM = 10 # lowered for testing
     MAX_TWEET_NUM = 10 #lowered for testing
     
+    #with open("python_scripts/apiKeys.json","w") as write_file:
+    #    json.dump(credentials,write_file)
+
+    #credentials = {}
+    #with open("python_scripts/apiKeys.json","r") as cred_file:
+    #    credentials = json.load(cred_file)
+
     #auth = tw.OAuthHandler(credentials['CONSUMER_KEY'], credentials['CONSUMER_KEY_SECRET'])  # this is Auth version 1, not as good
     auth = tw.AppAuthHandler(credentials['CONSUMER_KEY'], credentials['CONSUMER_KEY_SECRET'])  # Auth version 2 better, idk why exactly, rate limits?
     #auth.set_access_token(credentials['ACCESS_TOKEN'] , credentials['ACCESS_TOKEN_SECRET'])  # only for Auth version 1
