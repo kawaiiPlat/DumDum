@@ -43,6 +43,27 @@ using namespace std;
 
 enum class opType{ single = 0, followers = 1};
 
+struct user{
+    string sName;
+    float fScore;
+    user(string name, float score){
+        sName = name;
+        fScore = score;
+    }
+    bool operator<(user LHS){
+        if(LHS.fScore > fScore)
+            return true;
+
+        return false;
+    }
+    bool operator>(user LHS){
+        if(LHS.fScore > fScore)
+            return false;
+
+        return true;
+    }
+};
+
 void updateTwitter(string name, int mode){
     Timer t3;
     cout << "reading from twitter, please be patient..." << endl;
@@ -101,11 +122,46 @@ int main(){
     loadWordlist(um,om);
     long umTime = 0, omTime = 0;
     cout << setprecision(3) << fixed;
+    string badInput = "bad input, enter the number of an option you want";
+    //updateTwitter("LinusTech", (int)opType::single);
+    //updateTwitter("LinusTech", (int)opType::followers);
 
-    updateTwitter("LinusTech", (int)opType::followers);
+    int choice = -1;
+    while (choice != 0){
+        cout << "---------------------------------------" << endl;
+        cout << "What operation do you want? Enter 0 to exit" << endl;
+        cout << "[1] Get a single account's score\n[2] Get a account's follower's scores" << endl;
+        string input = "";
+        cin >> input;
+        
+        cout << endl;
+
+        try{
+            choice = stoi(input);
+        } catch (exception e){
+            cout << badInput << endl;
+        }
+
+        // if the input is valid, continue, else print err message
+        if(choice == 0){
+            //exiting
+            cout << "exiting..." << endl;
+        } else if (choice == 1){
+            // single user, just print their score and loop
+            cout << "single user" << endl;
+        } else if (choice == 2) {
+            // followers scores, give second menu
+            cout << "followers" << endl;
+        } else {
+            cout << "pick a valid option" << endl;
+        }
+
+        cout << endl ;
 
 
+    }
 
+/*
     Timer t1;
     cout << um.find("test")->second << endl;
     cout << "Search time in µs for umap: " << t1.elapsed()*1000000 << endl << endl;
@@ -113,4 +169,5 @@ int main(){
     Timer t2;
     cout << om.find("test")->second << endl;
     cout << "Search time in µs for omap: " << t2.elapsed()*1000000 << endl;
+*/
 }
