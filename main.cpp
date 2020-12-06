@@ -253,7 +253,7 @@ int main(){
             // followers scores, give second menu
             cout << sUsernamePrompt << endl;
             cin >> input;
-            updateTwitter(input, (int)opType::followers, userList, um, om); 
+            updateTwitter(input, (int)opType::followers, userList, um, om, fUMapTime,fOMapTime); 
             string userName = input;
            
             //-----------------------------------------------------------------------------------------------------------------------------------------
