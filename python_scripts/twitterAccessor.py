@@ -22,8 +22,8 @@ def main():
         return
     screen_name = sys.argv[1]
     mode_option = sys.argv[2]  # "0" = get score for screen_name, "1" = get score for all of screen_name's followers
-    MAX_FOLLOWER_NUM = 100
-    MAX_TWEET_NUM = 100
+    MAX_FOLLOWER_NUM = 10 # lowered for testing
+    MAX_TWEET_NUM = 10 #lowered for testing
     
     #auth = tw.OAuthHandler(credentials['CONSUMER_KEY'], credentials['CONSUMER_KEY_SECRET'])  # this is Auth version 1, not as good
     auth = tw.AppAuthHandler(credentials['CONSUMER_KEY'], credentials['CONSUMER_KEY_SECRET'])  # Auth version 2 better, idk why exactly, rate limits?
