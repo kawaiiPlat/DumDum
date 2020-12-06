@@ -5,6 +5,7 @@
 
 #include <unordered_map>    // data structure
 #include <map>              // data structure
+#include <algorithm>        // for std::sort
 #include <fstream>          // for files
 #include <iostream>         // 
 #include <iomanip>          // for setprecision
@@ -223,7 +224,6 @@ int main(){
             cout << "exiting..." << endl;
         } else if (choice == 1){
             // single user, just print their score and loop
-            cout << "single user" << endl;
             cout << sUsernamePrompt << endl;
             cin >> input;
             updateTwitter(input, (int)opType::single, userList,um,om);
@@ -234,12 +234,11 @@ int main(){
 
         } else if (choice == 2) {
             // followers scores, give second menu
-            cout << "followers" << endl;
             cout << sUsernamePrompt << endl;
             cin >> input;
             updateTwitter(input, (int)opType::followers, userList, um, om);
            
-            //----------------------------------------------------------
+            //-----------------------------------------------------------------------------------------------------------------------------------------
             // multi user menu
             choice = -1;
             while (choice != 0){
@@ -258,10 +257,20 @@ int main(){
                 if(choice == 0){
                     cout << "Going Back... " << endl;
                 } else if (choice == 1){
-                    
+                    // highest scores
+                    sort(userList.begin(), userList.end(), [](const User& lhs, const User& rhs){return lhs.fScore < rhs.fScore;});
                 } else if (choice == 2){
+                    // lowest scores
+                    sort(userList.begin(), userList.end(), [](const User& lhs, const User& rhs){return lhs.fScore > rhs.fScore;});
 
                 } else if (choice == 3){
+                    float fAvgScore = 0;
+                    for( User user : userList){                            
+                        fAvgScore += user.fScore;
+                    }
+                    fAvgScore /= userList.size();
+
+                    cout << endl << "the average score of the users is " << fAvgScore << endl; 
 
                 }
             }
