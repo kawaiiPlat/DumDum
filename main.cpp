@@ -47,9 +47,10 @@ enum class opType{ single = 0, followers = 1};
 struct User{
     string sName;
     float fScore;
-    User(string name, float score){
+    vector<string> words;
+    User(string name){
         sName = name;
-        fScore = score;
+        fScore = 0;
     }
     bool operator<(User LHS){
         if(LHS.fScore > fScore)
@@ -80,19 +81,28 @@ void parseUserDataInTo(vector<User>& users){
             // parse each user's data into a new user object
             for(int i = 0; i < iNumUsers; i++){
                 string sName = "";
-                float fScore = 0;
                 getline(data,sName); // username
 
                 getline(data, line); // numberoftweets
-                int iNumTweets = stoi(line);
+                User temp = User(sName);
 
+
+                int iNumTweets = stoi(line);
+                cout << "number of tweets: " << iNumTweets << endl;
+                stringstream ss;
+                string word;
                 for(int j = 0; j < iNumTweets; j++){
-                    
+                    getline(data,line);
+                    cout << "tweet number: " << j << endl;
+                    cout << "tweet content: " << line << endl;
+                    ss << line;
+                    while(getline(ss,word, ' ')){
+                        temp.words.push_back(word);
+                    }
                 }
 
-                users.emplace_back(User(sName,fScore));
+                users.emplace_back(temp);
             }
-
         }
     } else {
         cerr << "data file could not be opened" << endl;
@@ -100,16 +110,53 @@ void parseUserDataInTo(vector<User>& users){
     
 }
 
-void updateTwitter(string name, int mode, vector<User>& users){
+long getFreq(string word,unordered_map<string, long> um, map<string, long> om, float& fUMapTime, float& fOMapTime){
+    long res = 0;
+    cout << "scoring word " << word << endl; 
+    if(um.count(word) > 0){
+        Timer tUMap;
+        res = um.find(word)->second; // unecessary, but I put it in to be fair between the two functions
+        fUMapTime += tUMap.elapsed();
+
+        Timer tOMap;
+        res = om.find(word)->second;
+        fOMapTime += tOMap.elapsed();
+    }
+
+    res = 100000; //TODO remove, just for testing
+    return res;
+}
+
+void calculateScores(vector<User>& users, unordered_map<string, long> um, map<string, long> om){
+
+    float fOMapTime = 0;
+    float fUMapTime = 0;
+    for(User user : users){
+        cout << "scoring user @" << user.sName << endl;
+        for(string word : user.words){
+            user.fScore += getFreq(word, um, om, fUMapTime, fOMapTime);
+        }
+        user.fScore /= user.words.size(); // get the average word score
+    }
+
+    cout << "Intelligence scores calculated." << endl;
+    cout << "Unordered map searches took : " << fOMapTime*1000000 << " µs in total" << endl;
+    cout << "Ordered map searches took   : " << fUMapTime*1000000 << " µs in total" << endl;
+}
+
+void updateTwitter(string name, int mode, vector<User>& users, unordered_map<string, long> um, map<string, long> om ){
     Timer t3;
     cout << "reading from twitter, please be patient..." << endl;
-    std::string test = "python python_scripts/twitterAccessor.py";
-    test = test + " " + name + " " + to_string(mode);
+    std::string command = "python python_scripts/twitterAccessor.py";
+    command = command + " " + name + " " + to_string(mode);
     //std::string test = "python python_scripts/twitterAccessor.py LinusTech 0 > /dev/null 2>&1";
-    system(test.c_str());
+    system(command.c_str());
     cout << "search time: " << t3.elapsed() << endl << endl;
 
+    cout << "parsing twitter data" << endl;
     parseUserDataInTo(users);
+    cout << "calculating scores" << endl;
+    calculateScores(users,um,om);
 }
 
 float findAverageOf(string userName, int mode){
@@ -117,7 +164,7 @@ float findAverageOf(string userName, int mode){
     return 0.0f;
 }
 
-void loadWordlist(unordered_map<string,int>& um, map<string,int>& om){
+void loadWordlist(unordered_map<string,long>& um, map<string,long>& om){
     ifstream data;
 
     int i = 0;
@@ -149,17 +196,9 @@ void loadWordlist(unordered_map<string,int>& um, map<string,int>& om){
     return;
 }
 
-long getWordScore(unordered_map<string,int>& um, map<string,int>& om, float& umTime, float& omTime){
-    return 0;
-}
-
-string parseUsername(){
-   return ""; 
-}
-
 int main(){
-    unordered_map<string,int>   um;
-    map<string, int>            om;
+    unordered_map<string,long>   um;
+    map<string, long>            om;
     loadWordlist(um,om);
     long umTime = 0, omTime = 0;
     vector<User> userList;
@@ -194,14 +233,18 @@ int main(){
             cout << "single user" << endl;
             cout << sUsernamePrompt << endl;
             cin >> input;
-            updateTwitter(input, (int)opType::single, userList);
+            updateTwitter(input, (int)opType::single, userList,um,om);
+
+            for(User user : userList){
+                cout << "-> @" << user.sName << " has a score of " << user.fScore << endl;
+            }
 
         } else if (choice == 2) {
             // followers scores, give second menu
             cout << "followers" << endl;
             cout << sUsernamePrompt << endl;
             cin >> input;
-            updateTwitter(input, (int)opType::followers, userList);
+            updateTwitter(input, (int)opType::followers, userList, um, om);
            
             //----------------------------------------------------------
             // multi user menu
@@ -242,8 +285,6 @@ int main(){
     }
 
 /*
-    Timer t1;
-    cout << um.find("test")->second << endl;
     cout << "Search time in µs for umap: " << t1.elapsed()*1000000 << endl << endl;
 
     Timer t2;
