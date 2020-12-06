@@ -47,20 +47,20 @@ enum class opType{ single = 0, followers = 1};
 
 struct User{
     string sName;
-    float fScore;
+    long lScore;
     vector<string> words;
     User(string name){
         sName = name;
-        fScore = 0;
+        lScore = 0;
     }
     bool operator<(User LHS){
-        if(LHS.fScore > fScore)
+        if(LHS.lScore > lScore)
             return true;
 
         return false;
     }
     bool operator>(User LHS){
-        if(LHS.fScore > fScore)
+        if(LHS.lScore > lScore)
             return false;
 
         return true;
@@ -68,6 +68,7 @@ struct User{
 };
 
 void parseUserDataInTo(vector<User>& users){
+    cout << endl << "parsing user data..." << endl;
     ifstream data;
     string line;
     data.open("text_files/tweet_data.txt");
@@ -108,7 +109,7 @@ void parseUserDataInTo(vector<User>& users){
     
 }
 
-long getFreq(string word,unordered_map<string, long> um, map<string, long> om, float& fUMapTime, float& fOMapTime){
+long getFreq(string word,unordered_map<string, long> um, map<string, long> om, long& fUMapTime, long& fOMapTime){
     long res = 0;
     if(um.count(word) > 0){
         Timer tUMap;
@@ -122,15 +123,15 @@ long getFreq(string word,unordered_map<string, long> um, map<string, long> om, f
     return res;
 }
 
-void calculateScores(vector<User>& users, unordered_map<string, long> um, map<string, long> om){
-
-    float fOMapTime = 0;
-    float fUMapTime = 0;
+void calculateScores(vector<User>& users, unordered_map<string, long>& um, map<string, long>& om, long& fUMapTime, long& fOMapTime){
+    cout << "calculating scores..." << endl;
+    fOMapTime = 0.0f;
+    fUMapTime = 0.0f;
     for(User& user : users){
         for(string word : user.words){
-            user.fScore += getFreq(word, um, om, fUMapTime, fOMapTime);
+            user.lScore += getFreq(word, um, om, fUMapTime, fOMapTime);
         }
-        user.fScore /= user.words.size(); // get the average word score
+        user.lScore = user.lScore / (user.words.size() > 0? user.words.size() : 1); // get the average word score
     }
     cout << endl;
     cout << "Intelligence scores calculated." << endl;
@@ -138,7 +139,7 @@ void calculateScores(vector<User>& users, unordered_map<string, long> um, map<st
     cout << "Ordered map searches took   : " << fUMapTime*1000000 << " µs in total" << endl << endl;
 }
 
-void updateTwitter(string name, int mode, vector<User>& users, unordered_map<string, long> um, map<string, long> om ){
+void updateTwitter(string name, int mode, vector<User>& users, unordered_map<string, long> um, map<string, long> om, long fUMapTime, long fOMapTime ){
     Timer t3;
     cout << "reading from twitter, please be patient..." << endl;
     std::string command = "python python_scripts/twitterAccessor.py";
@@ -147,15 +148,8 @@ void updateTwitter(string name, int mode, vector<User>& users, unordered_map<str
     system(command.c_str());
     cout << "search time: " << t3.elapsed() << endl << endl;
 
-    cout << "parsing twitter data" << endl;
     parseUserDataInTo(users);
-    cout << "calculating scores" << endl;
-    calculateScores(users,um,om);
-}
-
-float findAverageOf(string userName, int mode){
-    // todo calculate with the file
-    return 0.0f;
+    calculateScores(users,um,om,fUMapTime,fOMapTime);
 }
 
 void loadWordlist(unordered_map<string,long>& um, map<string,long>& om){
@@ -190,21 +184,43 @@ void loadWordlist(unordered_map<string,long>& um, map<string,long>& om){
     return;
 }
 
+void printUserScores(vector<User> userList, string sSeperator, string title){
+
+    cout << title << endl;
+    cout << sSeperator;
+    cout << "Twitter @                  Intelligence" << endl;
+    cout << sSeperator;
+    for(User user : userList){
+        cout << setw(16) << left << user.sName << setw(13) << left << " | " << user.lScore << endl;
+    }
+    cout << sSeperator;
+    cout << endl << endl;
+}
+
+/*
+
+    "-g",
+    "&&",
+    "clear",
+    "&&",
+    "./out/${fileBasenameNoExtension}.out"
+*/
+
+
 int main(){
     unordered_map<string,long>   um;
     map<string, long>            om;
+    long fOMapTime = 0, fUMapTime = 0;
     loadWordlist(um,om);
-    long umTime = 0, omTime = 0;
     vector<User> userList;
     cout << setprecision(3) << fixed;
     const string sBadInput = "bad input, enter the number of an option you want";
     const string sUsernamePrompt = "Enter the twitter username you want to know about, without the '@' ";
+    const string sSeperator = "---------------------------------------\n";
     
-    //updateTwitter("LinusTech", (int)opType::followers);
-
     int choice = -1;
     while (choice != 0){
-        cout << "---------------------------------------" << endl;
+        cout << sSeperator;
         cout << "What operation do you want?" << endl;
         cout << "[0] Exit\n[1] Get a single account's score\n[2] Get a account's follower's scores" << endl;
         string input = "";
@@ -226,24 +242,28 @@ int main(){
             // single user, just print their score and loop
             cout << sUsernamePrompt << endl;
             cin >> input;
-            updateTwitter(input, (int)opType::single, userList,um,om);
+            system("clear");
+            updateTwitter(input, (int)opType::single, userList,um,om,fUMapTime,fOMapTime);
 
             for(User user : userList){
-                cout << "-> @" << user.sName << " has a score of " << user.fScore << endl;
+                cout << "-> @" << user.sName << " has a score of " << user.lScore << endl;
             }
 
         } else if (choice == 2) {
             // followers scores, give second menu
             cout << sUsernamePrompt << endl;
             cin >> input;
-            updateTwitter(input, (int)opType::followers, userList, um, om);
+            updateTwitter(input, (int)opType::followers, userList, um, om); 
+            string userName = input;
            
             //-----------------------------------------------------------------------------------------------------------------------------------------
             // multi user menu
             choice = -1;
             while (choice != 0){
+                cout << sSeperator;
                 cout << "What operation do you want?" << endl;
                 cout << "[0] Go back\n[1] View top scoring following\n[2] View bottom scoring following\n[3] view average score of following" << endl;
+                string graphTitle ="@" + userName + "'s followers, organized\nfrom the bottom ";
                 string input = "";
                 cin >> input;
                 cout << endl;
@@ -256,21 +276,29 @@ int main(){
 
                 if(choice == 0){
                     cout << "Going Back... " << endl;
+                    system("clear");
                 } else if (choice == 1){
                     // highest scores
-                    sort(userList.begin(), userList.end(), [](const User& lhs, const User& rhs){return lhs.fScore < rhs.fScore;});
+                    sort(userList.begin(), userList.end(), [](const User& lhs, const User& rhs){return lhs.lScore < rhs.lScore;});
+                    graphTitle += "by highest intelligence";
+                    system("clear");
+                    printUserScores(userList,sSeperator,graphTitle);
                 } else if (choice == 2){
                     // lowest scores
-                    sort(userList.begin(), userList.end(), [](const User& lhs, const User& rhs){return lhs.fScore > rhs.fScore;});
+                    sort(userList.begin(), userList.end(), [](const User& lhs, const User& rhs){return lhs.lScore > rhs.lScore;});
+                    graphTitle += "by lowest intelligence";
+                    system("clear");
+                    printUserScores(userList,sSeperator, graphTitle);
 
                 } else if (choice == 3){
-                    float fAvgScore = 0;
+                    long long llAvgScore = 0;
                     for( User user : userList){                            
-                        fAvgScore += user.fScore;
+                        llAvgScore += user.lScore;
                     }
-                    fAvgScore /= userList.size();
+                    llAvgScore /= userList.size();
 
-                    cout << endl << "the average score of the users is " << fAvgScore << endl; 
+                    system("clear");
+                    cout << endl << "the average intelligence of " + userName + "'s followers is " << llAvgScore << endl; 
 
                 }
             }
@@ -285,12 +313,4 @@ int main(){
 
 
     }
-
-/*
-    cout << "Search time in µs for umap: " << t1.elapsed()*1000000 << endl << endl;
-
-    Timer t2;
-    cout << om.find("test")->second << endl;
-    cout << "Search time in µs for omap: " << t2.elapsed()*1000000 << endl;
-*/
 }
