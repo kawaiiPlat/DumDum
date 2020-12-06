@@ -88,13 +88,10 @@ void parseUserDataInTo(vector<User>& users){
 
 
                 int iNumTweets = stoi(line);
-                cout << "number of tweets: " << iNumTweets << endl;
                 stringstream ss;
                 string word;
                 for(int j = 0; j < iNumTweets; j++){
                     getline(data,line);
-                    cout << "tweet number: " << j << endl;
-                    cout << "tweet content: " << line << endl;
                     ss << line;
                     while(getline(ss,word, ' ')){
                         temp.words.push_back(word);
@@ -112,7 +109,6 @@ void parseUserDataInTo(vector<User>& users){
 
 long getFreq(string word,unordered_map<string, long> um, map<string, long> om, float& fUMapTime, float& fOMapTime){
     long res = 0;
-    cout << "scoring word " << word << endl; 
     if(um.count(word) > 0){
         Timer tUMap;
         res = um.find(word)->second; // unecessary, but I put it in to be fair between the two functions
@@ -122,8 +118,6 @@ long getFreq(string word,unordered_map<string, long> um, map<string, long> om, f
         res = om.find(word)->second;
         fOMapTime += tOMap.elapsed();
     }
-
-    res = 100000; //TODO remove, just for testing
     return res;
 }
 
@@ -131,17 +125,16 @@ void calculateScores(vector<User>& users, unordered_map<string, long> um, map<st
 
     float fOMapTime = 0;
     float fUMapTime = 0;
-    for(User user : users){
-        cout << "scoring user @" << user.sName << endl;
+    for(User& user : users){
         for(string word : user.words){
             user.fScore += getFreq(word, um, om, fUMapTime, fOMapTime);
         }
         user.fScore /= user.words.size(); // get the average word score
     }
-
+    cout << endl;
     cout << "Intelligence scores calculated." << endl;
     cout << "Unordered map searches took : " << fOMapTime*1000000 << " µs in total" << endl;
-    cout << "Ordered map searches took   : " << fUMapTime*1000000 << " µs in total" << endl;
+    cout << "Ordered map searches took   : " << fUMapTime*1000000 << " µs in total" << endl << endl;
 }
 
 void updateTwitter(string name, int mode, vector<User>& users, unordered_map<string, long> um, map<string, long> om ){
@@ -278,7 +271,7 @@ int main(){
             cout << "pick a valid option" << endl;
         }
 
-
+        userList.clear();
         cout << endl ;
 
 
