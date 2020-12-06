@@ -24,19 +24,24 @@ def main():
 
     try:
         print("trying to load file")
-        with open("text_files/breadcrumb.txt","r") as breadcrumb:
+        breadcrumb = open("text_files/breadcrumb.txt")
+
+        line = breadcrumb.readline()
+        print(int(line))
+        print(int(mode_option))
+        if (int(line) == int(mode_option)):
             line = breadcrumb.readline()
-            if (line == mode_option):
-                line = breadcrumb.readline()
-                if (line == screen_name):
-                    print("Data already cached")
-                    exit()
+            print(line)
+            if (line == screen_name):
+                print("Data already cached")
+                exit()
     except IOError:
-        print(IOError)
         with open("text_files/breadcrumb.txt", "w") as new_breadcrumb:
             print("making new breadcrumb")
             newbc = mode_option + "\n" + screen_name
             new_breadcrumb.write(newbc) 
+    finally:
+        breadcrumb.close()
 
     credentials = {}
     with open("python_scripts/apiKeys.json","r") as cred_file:
