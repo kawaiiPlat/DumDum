@@ -17,9 +17,9 @@ Dependencies:
 * g++ 10.2.0 tested
 
 Optional:
-* openssl 1.1.1h
-  * Used to encrypt twitter api keys
-* tar 1.3.2
+* API Key encryption scripts:
+  * openssl 1.1.1h
+  * tar 1.3.2
 
 *** 
 ## To use
