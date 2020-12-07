@@ -15,8 +15,8 @@ def main():
 
     screen_name = sys.argv[1]
     mode_option = sys.argv[2]  # "0" = get score for screen_name, "1" = get score for all of screen_name's followers
-    MAX_FOLLOWER_NUM = 10  # lowered for testing
-    MAX_TWEET_NUM = 10  # lowered for testing
+    MAX_FOLLOWER_NUM = 100
+    MAX_TWEET_NUM = 100
 
     credentials = {}
     with open("python_scripts/apiKeys.json","r") as cred_file:
