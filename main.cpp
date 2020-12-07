@@ -195,6 +195,7 @@ void printUserScores(vector<User> userList, string sSeperator, string title){
         cout << setw(16) << left << user.sName << setw(13) << left << " | " << user.lScore << endl;
     }
     cout << sSeperator;
+    cout << "Lower is better" << endl;
     cout << endl << endl;
 }
 
