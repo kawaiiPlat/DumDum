@@ -32,6 +32,6 @@ This program is meant as a joke, and doesn't actually speak to anyone's intellig
 
 { "CONSUMER_KEY": "blah blah blah", "CONSUMER_KEY_SECRET": "blah blah blah"}
 
-Save the above line with the file location, name, and extension: "python_scripts/apiKeys.json"
+Save the above line (with the blahs replaced with your keys) with the file location, name, and extension: "python_scripts/apiKeys.json"
 
 We only use two values from the API keys, as we are using the twitter API V2
