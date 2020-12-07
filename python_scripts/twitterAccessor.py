@@ -119,6 +119,7 @@ def get_all_posts_by_user(api, user, MAX_TWEET_NUM):
         tweet = remove_url(post.text.replace('\n', ' '))
         regex = re.compile('[^a-zA-Z ]')  # removes all non-alphabetical characters
         tweet = regex.sub('', tweet)
+        tweet = tweet.lower()
         user_info_to_append += tweet
         user_info_to_append += "\n"
         # print()
