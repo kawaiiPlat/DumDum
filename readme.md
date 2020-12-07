@@ -9,14 +9,14 @@ author: @kawaiiPlat
 This program is meant as a joke, and doesn't actually speak to anyone's intelligence. It pretends to calculate comparitive intelligence by comparing the frequency of words used in users tweets. The idea being that you can find out who the most drull of your friends are and call them **_Dum Dums_**.
 
 ***
-Dependencies:
+## Dependencies:
 * Linux / macOS shell to run in
 * Python
   * Python 3.8 tested 
   * Tweepy 3.9.0 tested
 * g++ 10.2.0 tested
 
-Optional:
+## Optional:
 * API Key encryption scripts:
   * openssl 1.1.1h
   * tar 1.3.2
