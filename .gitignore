@@ -1,6 +1,6 @@
 out
 .venv
-text_files/tweet_data.txt
+text_files
 python_scripts/*.json
-text_files/breadcrumb.txt
 .vscode
+main
