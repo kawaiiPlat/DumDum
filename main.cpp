@@ -49,6 +49,7 @@ struct User{
     string sName;
     long lScore;
     vector<string> words;
+
     User(string name){
         sName = name;
         lScore = 0;
@@ -109,7 +110,7 @@ void parseUserDataInTo(vector<User>& users){
     
 }
 
-long getFreq(string word,unordered_map<string, long> um, map<string, long> om, long& fUMapTime, long& fOMapTime){
+long getFreq(string word,unordered_map<string, long> um, map<string, long> om, float& fUMapTime, float& fOMapTime){
     long res = 0;
     if(um.count(word) > 0){
         Timer tUMap;
@@ -123,23 +124,23 @@ long getFreq(string word,unordered_map<string, long> um, map<string, long> om, l
     return res;
 }
 
-void calculateScores(vector<User>& users, unordered_map<string, long>& um, map<string, long>& om, long& fUMapTime, long& fOMapTime){
+void calculateScores(vector<User>& users, unordered_map<string, long>& um, map<string, long>& om){
     cout << "calculating scores..." << endl;
-    fOMapTime = 0.0f;
-    fUMapTime = 0.0f;
+    float totalUMTime = 0;
+    float totalOMTime = 0;
     for(User& user : users){
         for(string word : user.words){
-            user.lScore += getFreq(word, um, om, fUMapTime, fOMapTime);
+            user.lScore += getFreq(word, um, om, totalUMTime, totalOMTime);
         }
         user.lScore = user.lScore / (user.words.size() > 0? user.words.size() : 1); // get the average word score
     }
     cout << endl;
     cout << "Intelligence scores calculated." << endl;
-    cout << "Unordered map searches took : " << fOMapTime*1000000 << " µs in total" << endl;
-    cout << "Ordered map searches took   : " << fUMapTime*1000000 << " µs in total" << endl << endl;
+    cout << "Unordered map searches took : " << totalUMTime*1000000 << " µs in total" << endl;
+    cout << "Ordered map searches took   : " << totalOMTime*1000000 << " µs in total" << endl << endl;
 }
 
-void updateTwitter(string name, int mode, vector<User>& users, unordered_map<string, long> um, map<string, long> om, long fUMapTime, long fOMapTime ){
+void updateTwitter(string name, int mode, vector<User>& users, unordered_map<string, long>& um, map<string, long>& om){
     Timer t3;
     cout << "reading from twitter, please be patient..." << endl;
     std::string command = "python python_scripts/twitterAccessor.py";
@@ -149,7 +150,7 @@ void updateTwitter(string name, int mode, vector<User>& users, unordered_map<str
     cout << "search time: " << t3.elapsed() << endl << endl;
 
     parseUserDataInTo(users);
-    calculateScores(users,um,om,fUMapTime,fOMapTime);
+    calculateScores(users,um,om);
 }
 
 void loadWordlist(unordered_map<string,long>& um, map<string,long>& om){
@@ -197,20 +198,10 @@ void printUserScores(vector<User> userList, string sSeperator, string title){
     cout << endl << endl;
 }
 
-/*
-
-    "-g",
-    "&&",
-    "clear",
-    "&&",
-    "./out/${fileBasenameNoExtension}.out"
-*/
-
 
 int main(){
     unordered_map<string,long>   um;
     map<string, long>            om;
-    long fOMapTime = 0, fUMapTime = 0;
     loadWordlist(um,om);
     vector<User> userList;
     cout << setprecision(3) << fixed;
@@ -243,7 +234,7 @@ int main(){
             cout << sUsernamePrompt << endl;
             cin >> input;
             system("clear");
-            updateTwitter(input, (int)opType::single, userList,um,om,fUMapTime,fOMapTime);
+            updateTwitter(input, (int)opType::single, userList,um,om);
 
             for(User user : userList){
                 cout << "-> @" << user.sName << " has a score of " << user.lScore << endl;
@@ -253,7 +244,7 @@ int main(){
             // followers scores, give second menu
             cout << sUsernamePrompt << endl;
             cin >> input;
-            updateTwitter(input, (int)opType::followers, userList, um, om, fUMapTime,fOMapTime); 
+            updateTwitter(input, (int)opType::followers, userList, um, om); 
             string userName = input;
            
             //-----------------------------------------------------------------------------------------------------------------------------------------
