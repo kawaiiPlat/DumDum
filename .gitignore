@@ -2,3 +2,5 @@ out
 .venv
 text_files/tweet_data.txt
 python_scripts/*.json
+text_files/breadcrumb.txt
+.vscode
