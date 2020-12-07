@@ -35,3 +35,18 @@ This program is meant as a joke, and doesn't actually speak to anyone's intellig
 Save the above line (with the blahs replaced with your keys) with the file location, name, and extension: "python_scripts/apiKeys.json"
 
 We only use two values from the API keys, as we are using the twitter API V2
+
+## Twitter data
+
+The data is saved in the following format in text_files/tweet_data.txt
+
+Mode = 1 (follower data = 1, single user = 0)
+NumberOfUsers = 2
+username1
+NumberOfTweets = 2
+tweet
+tweet
+username2
+NumberOfTweets = 1
+tweet
+
